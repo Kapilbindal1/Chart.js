@@ -50,12 +50,13 @@ function readUsedSize(element, property) {
  * to determine the aspect ratio to apply in case no explicit height has been specified.
  */
 function initCanvas(canvas, config) {
-	var style = canvas.style;
+	var style = canvas.style || {};
 
 	// NOTE(SB) canvas.getAttribute('width') !== canvas.width: in the first case it
 	// returns null or '' if no explicit value has been set to the canvas attribute.
-	var renderHeight = canvas.getAttribute('height');
-	var renderWidth = canvas.getAttribute('width');
+	var renderHeight = canvas.height;
+  var renderWidth = canvas.width;
+  console.log("renderWidth: ", renderWidth)
 
 	// Chart.js modifies some canvas values that we want to restore on destroy
 	canvas[EXPANDO_KEY] = {
@@ -124,11 +125,11 @@ var supportsEventListenerOptions = (function() {
 var eventListenerOptions = supportsEventListenerOptions ? {passive: true} : false;
 
 function addEventListener(node, type, listener) {
-	node.addEventListener(type, listener, eventListenerOptions);
+	// node.addEventListener(type, listener, eventListenerOptions);
 }
 
 function removeEventListener(node, type, listener) {
-	node.removeEventListener(type, listener, eventListenerOptions);
+	// node.removeEventListener(type, listener, eventListenerOptions);
 }
 
 function createEvent(type, chart, x, y, nativeEvent) {
@@ -376,16 +377,16 @@ module.exports = {
 		var initial = canvas[EXPANDO_KEY].initial;
 		['height', 'width'].forEach(function(prop) {
 			var value = initial[prop];
-			if (helpers.isNullOrUndef(value)) {
-				canvas.removeAttribute(prop);
-			} else {
-				canvas.setAttribute(prop, value);
-			}
+			// if (helpers.isNullOrUndef(value)) {
+			// 	canvas.removeAttribute(prop);
+			// } else {
+			// 	canvas.setAttribute(prop, value);
+			// }
 		});
-
-		helpers.each(initial.style || {}, function(value, key) {
-			canvas.style[key] = value;
-		});
+    // canvas.style = {}
+		// helpers.each(initial.style || {}, function(value, key) {
+		// 	canvas.style[key] = value;
+		// });
 
 		// The canvas render size might have been changed (and thus the state stack discarded),
 		// we can't use save() and restore() to restore the initial state. So make sure that at
