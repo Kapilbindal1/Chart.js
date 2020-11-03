@@ -1,7 +1,9 @@
+/* global Chart */
+
 'use strict';
 
 (function() {
-	Chart.register({
+	Chart.plugins.register({
 		id: 'samples-filler-analyser',
 
 		beforeInit: function(chart, options) {
@@ -48,7 +50,7 @@
 					} else if (isFinite(target)) {
 						target = 'dataset ' + target;
 					} else {
-						target = 'boundary "' + (typeof target === 'object' ? JSON.stringify(target) : target) + '"';
+						target = 'boundary "' + target + '"';
 					}
 
 					if (stat.visible) {

@@ -1,9 +1,5 @@
 describe('Chart.controllers.bar', function() {
-	describe('auto', jasmine.fixture.specs('controller.bar'));
-
-	it('should be registered as dataset controller', function() {
-		expect(typeof Chart.controllers.bar).toBe('function');
-	});
+	describe('auto', jasmine.specsFromFixtures('controller.bar'));
 
 	it('should be constructed', function() {
 		var chart = window.acquireChart({
@@ -40,522 +36,632 @@ describe('Chart.controllers.bar', function() {
 				],
 				labels: []
 			},
+			options: {
+				scales: {
+					xAxes: [{
+						id: 'firstXScaleID'
+					}],
+					yAxes: [{
+						id: 'firstYScaleID'
+					}]
+				}
+			}
 		});
 
 		var meta = chart.getDatasetMeta(1);
-		expect(meta.xAxisID).toBe('x');
-		expect(meta.yAxisID).toBe('y');
+		expect(meta.xAxisID).toBe('firstXScaleID');
+		expect(meta.yAxisID).toBe('firstYScaleID');
 	});
 
 	it('should correctly count the number of stacks ignoring datasets of other types and hidden datasets', function() {
-		var chart = window.acquireChart({
-			type: 'bar',
-			data: {
-				datasets: [
-					{data: [], type: 'line'},
-					{data: [], hidden: true},
-					{data: []},
-					{data: []}
-				],
-				labels: []
-			}
-		});
+		[
+			'bar',
+			'horizontalBar'
+		].forEach(function(barType) {
+			var chart = window.acquireChart({
+				type: barType,
+				data: {
+					datasets: [
+						{data: [], type: 'line'},
+						{data: [], hidden: true},
+						{data: []},
+						{data: []}
+					],
+					labels: []
+				}
+			});
 
-		var meta = chart.getDatasetMeta(1);
-		expect(meta.controller._getStackCount()).toBe(2);
+			var meta = chart.getDatasetMeta(1);
+			expect(meta.controller.getStackCount()).toBe(2);
+		});
 	});
 
 	it('should correctly count the number of stacks when a group is not specified', function() {
-		var chart = window.acquireChart({
-			type: 'bar',
-			data: {
-				datasets: [
-					{data: []},
-					{data: []},
-					{data: []},
-					{data: []}
-				],
-				labels: []
-			}
-		});
+		[
+			'bar',
+			'horizontalBar'
+		].forEach(function(barType) {
+			var chart = window.acquireChart({
+				type: barType,
+				data: {
+					datasets: [
+						{data: []},
+						{data: []},
+						{data: []},
+						{data: []}
+					],
+					labels: []
+				}
+			});
 
-		var meta = chart.getDatasetMeta(1);
-		expect(meta.controller._getStackCount()).toBe(4);
+			var meta = chart.getDatasetMeta(1);
+			expect(meta.controller.getStackCount()).toBe(4);
+		});
 	});
 
 	it('should correctly count the number of stacks when a group is not specified and the scale is stacked', function() {
-		var chart = window.acquireChart({
-			type: 'bar',
-			data: {
-				datasets: [
-					{data: []},
-					{data: []},
-					{data: []},
-					{data: []}
-				],
-				labels: []
-			},
-			options: {
-				scales: {
-					x: {
-						stacked: true
-					},
-					y: {
-						stacked: true
+		[
+			'bar',
+			'horizontalBar'
+		].forEach(function(barType) {
+			var chart = window.acquireChart({
+				type: barType,
+				data: {
+					datasets: [
+						{data: []},
+						{data: []},
+						{data: []},
+						{data: []}
+					],
+					labels: []
+				},
+				options: {
+					scales: {
+						xAxes: [{
+							stacked: true
+						}],
+						yAxes: [{
+							stacked: true
+						}]
 					}
 				}
-			}
-		});
+			});
 
-		var meta = chart.getDatasetMeta(1);
-		expect(meta.controller._getStackCount()).toBe(1);
+			var meta = chart.getDatasetMeta(1);
+			expect(meta.controller.getStackCount()).toBe(1);
+		});
 	});
 
 	it('should correctly count the number of stacks when a group is not specified and the scale is not stacked', function() {
-		var chart = window.acquireChart({
-			type: 'bar',
-			data: {
-				datasets: [
-					{data: []},
-					{data: []},
-					{data: []},
-					{data: []}
-				],
-				labels: []
-			},
-			options: {
-				scales: {
-					x: {
-						stacked: false
-					},
-					y: {
-						stacked: false
+		[
+			'bar',
+			'horizontalBar'
+		].forEach(function(barType) {
+			var chart = window.acquireChart({
+				type: barType,
+				data: {
+					datasets: [
+						{data: []},
+						{data: []},
+						{data: []},
+						{data: []}
+					],
+					labels: []
+				},
+				options: {
+					scales: {
+						xAxes: [{
+							stacked: false
+						}],
+						yAxes: [{
+							stacked: false
+						}]
 					}
 				}
-			}
-		});
+			});
 
-		var meta = chart.getDatasetMeta(1);
-		expect(meta.controller._getStackCount()).toBe(4);
+			var meta = chart.getDatasetMeta(1);
+			expect(meta.controller.getStackCount()).toBe(4);
+		});
 	});
 
 	it('should correctly count the number of stacks when a group is specified for some', function() {
-		var chart = window.acquireChart({
-			type: 'bar',
-			data: {
-				datasets: [
-					{data: [], stack: 'stack1'},
-					{data: [], stack: 'stack1'},
-					{data: []},
-					{data: []}
-				],
-				labels: []
-			}
-		});
+		[
+			'bar',
+			'horizontalBar'
+		].forEach(function(barType) {
+			var chart = window.acquireChart({
+				type: barType,
+				data: {
+					datasets: [
+						{data: [], stack: 'stack1'},
+						{data: [], stack: 'stack1'},
+						{data: []},
+						{data: []}
+					],
+					labels: []
+				}
+			});
 
-		var meta = chart.getDatasetMeta(3);
-		expect(meta.controller._getStackCount()).toBe(3);
+			var meta = chart.getDatasetMeta(3);
+			expect(meta.controller.getStackCount()).toBe(3);
+		});
 	});
 
 	it('should correctly count the number of stacks when a group is specified for some and the scale is stacked', function() {
-		var chart = window.acquireChart({
-			type: 'bar',
-			data: {
-				datasets: [
-					{data: [], stack: 'stack1'},
-					{data: [], stack: 'stack1'},
-					{data: []},
-					{data: []}
-				],
-				labels: []
-			},
-			options: {
-				scales: {
-					x: {
-						stacked: true
-					},
-					y: {
-						stacked: true
+		[
+			'bar',
+			'horizontalBar'
+		].forEach(function(barType) {
+			var chart = window.acquireChart({
+				type: barType,
+				data: {
+					datasets: [
+						{data: [], stack: 'stack1'},
+						{data: [], stack: 'stack1'},
+						{data: []},
+						{data: []}
+					],
+					labels: []
+				},
+				options: {
+					scales: {
+						xAxes: [{
+							stacked: true
+						}],
+						yAxes: [{
+							stacked: true
+						}]
 					}
 				}
-			}
-		});
+			});
 
-		var meta = chart.getDatasetMeta(3);
-		expect(meta.controller._getStackCount()).toBe(2);
+			var meta = chart.getDatasetMeta(3);
+			expect(meta.controller.getStackCount()).toBe(2);
+		});
 	});
 
 	it('should correctly count the number of stacks when a group is specified for some and the scale is not stacked', function() {
-		var chart = window.acquireChart({
-			type: 'bar',
-			data: {
-				datasets: [
-					{data: [], stack: 'stack1'},
-					{data: [], stack: 'stack1'},
-					{data: []},
-					{data: []}
-				],
-				labels: []
-			},
-			options: {
-				scales: {
-					x: {
-						stacked: false
-					},
-					y: {
-						stacked: false
+		[
+			'bar',
+			'horizontalBar'
+		].forEach(function(barType) {
+			var chart = window.acquireChart({
+				type: barType,
+				data: {
+					datasets: [
+						{data: [], stack: 'stack1'},
+						{data: [], stack: 'stack1'},
+						{data: []},
+						{data: []}
+					],
+					labels: []
+				},
+				options: {
+					scales: {
+						xAxes: [{
+							stacked: false
+						}],
+						yAxes: [{
+							stacked: false
+						}]
 					}
 				}
-			}
-		});
+			});
 
-		var meta = chart.getDatasetMeta(3);
-		expect(meta.controller._getStackCount()).toBe(4);
+			var meta = chart.getDatasetMeta(3);
+			expect(meta.controller.getStackCount()).toBe(4);
+		});
 	});
 
 	it('should correctly count the number of stacks when a group is specified for all', function() {
-		var chart = window.acquireChart({
-			type: 'bar',
-			data: {
-				datasets: [
-					{data: [], stack: 'stack1'},
-					{data: [], stack: 'stack1'},
-					{data: [], stack: 'stack2'},
-					{data: [], stack: 'stack2'}
-				],
-				labels: []
-			}
-		});
+		[
+			'bar',
+			'horizontalBar'
+		].forEach(function(barType) {
+			var chart = window.acquireChart({
+				type: barType,
+				data: {
+					datasets: [
+						{data: [], stack: 'stack1'},
+						{data: [], stack: 'stack1'},
+						{data: [], stack: 'stack2'},
+						{data: [], stack: 'stack2'}
+					],
+					labels: []
+				}
+			});
 
-		var meta = chart.getDatasetMeta(3);
-		expect(meta.controller._getStackCount()).toBe(2);
+			var meta = chart.getDatasetMeta(3);
+			expect(meta.controller.getStackCount()).toBe(2);
+		});
 	});
 
 	it('should correctly count the number of stacks when a group is specified for all and the scale is stacked', function() {
-		var chart = window.acquireChart({
-			type: 'bar',
-			data: {
-				datasets: [
-					{data: [], stack: 'stack1'},
-					{data: [], stack: 'stack1'},
-					{data: [], stack: 'stack2'},
-					{data: [], stack: 'stack2'}
-				],
-				labels: []
-			},
-			options: {
-				scales: {
-					x: {
-						stacked: true
-					},
-					y: {
-						stacked: true
+		[
+			'bar',
+			'horizontalBar'
+		].forEach(function(barType) {
+			var chart = window.acquireChart({
+				type: barType,
+				data: {
+					datasets: [
+						{data: [], stack: 'stack1'},
+						{data: [], stack: 'stack1'},
+						{data: [], stack: 'stack2'},
+						{data: [], stack: 'stack2'}
+					],
+					labels: []
+				},
+				options: {
+					scales: {
+						xAxes: [{
+							stacked: true
+						}],
+						yAxes: [{
+							stacked: true
+						}]
 					}
 				}
-			}
-		});
+			});
 
-		var meta = chart.getDatasetMeta(3);
-		expect(meta.controller._getStackCount()).toBe(2);
+			var meta = chart.getDatasetMeta(3);
+			expect(meta.controller.getStackCount()).toBe(2);
+		});
 	});
 
 	it('should correctly count the number of stacks when a group is specified for all and the scale is not stacked', function() {
-		var chart = window.acquireChart({
-			type: 'bar',
-			data: {
-				datasets: [
-					{data: [], stack: 'stack1'},
-					{data: [], stack: 'stack1'},
-					{data: [], stack: 'stack2'},
-					{data: [], stack: 'stack2'}
-				],
-				labels: []
-			},
-			options: {
-				scales: {
-					x: {
-						stacked: false
-					},
-					y: {
-						stacked: false
+		[
+			'bar',
+			'horizontalBar'
+		].forEach(function(barType) {
+			var chart = window.acquireChart({
+				type: barType,
+				data: {
+					datasets: [
+						{data: [], stack: 'stack1'},
+						{data: [], stack: 'stack1'},
+						{data: [], stack: 'stack2'},
+						{data: [], stack: 'stack2'}
+					],
+					labels: []
+				},
+				options: {
+					scales: {
+						xAxes: [{
+							stacked: false
+						}],
+						yAxes: [{
+							stacked: false
+						}]
 					}
 				}
-			}
-		});
+			});
 
-		var meta = chart.getDatasetMeta(3);
-		expect(meta.controller._getStackCount()).toBe(4);
+			var meta = chart.getDatasetMeta(3);
+			expect(meta.controller.getStackCount()).toBe(4);
+		});
 	});
 
 	it('should correctly get the stack index accounting for datasets of other types and hidden datasets', function() {
-		var chart = window.acquireChart({
-			type: 'bar',
-			data: {
-				datasets: [
-					{data: []},
-					{data: [], hidden: true},
-					{data: [], type: 'line'},
-					{data: []}
-				],
-				labels: []
-			}
-		});
+		[
+			'bar',
+			'horizontalBar'
+		].forEach(function(barType) {
+			var chart = window.acquireChart({
+				type: barType,
+				data: {
+					datasets: [
+						{data: []},
+						{data: [], hidden: true},
+						{data: [], type: 'line'},
+						{data: []}
+					],
+					labels: []
+				}
+			});
 
-		var meta = chart.getDatasetMeta(1);
-		expect(meta.controller._getStackIndex(0)).toBe(0);
-		expect(meta.controller._getStackIndex(3)).toBe(1);
+			var meta = chart.getDatasetMeta(1);
+			expect(meta.controller.getStackIndex(0)).toBe(0);
+			expect(meta.controller.getStackIndex(3)).toBe(1);
+		});
 	});
 
 	it('should correctly get the stack index when a group is not specified', function() {
-		var chart = window.acquireChart({
-			type: 'bar',
-			data: {
-				datasets: [
-					{data: []},
-					{data: []},
-					{data: []},
-					{data: []}
-				],
-				labels: []
-			}
-		});
+		[
+			'bar',
+			'horizontalBar'
+		].forEach(function(barType) {
+			var chart = window.acquireChart({
+				type: barType,
+				data: {
+					datasets: [
+						{data: []},
+						{data: []},
+						{data: []},
+						{data: []}
+					],
+					labels: []
+				}
+			});
 
-		var meta = chart.getDatasetMeta(1);
-		expect(meta.controller._getStackIndex(0)).toBe(0);
-		expect(meta.controller._getStackIndex(1)).toBe(1);
-		expect(meta.controller._getStackIndex(2)).toBe(2);
-		expect(meta.controller._getStackIndex(3)).toBe(3);
+			var meta = chart.getDatasetMeta(1);
+			expect(meta.controller.getStackIndex(0)).toBe(0);
+			expect(meta.controller.getStackIndex(1)).toBe(1);
+			expect(meta.controller.getStackIndex(2)).toBe(2);
+			expect(meta.controller.getStackIndex(3)).toBe(3);
+		});
 	});
 
 	it('should correctly get the stack index when a group is not specified and the scale is stacked', function() {
-		var chart = window.acquireChart({
-			type: 'bar',
-			data: {
-				datasets: [
-					{data: []},
-					{data: []},
-					{data: []},
-					{data: []}
-				],
-				labels: []
-			},
-			options: {
-				scales: {
-					x: {
-						stacked: true
-					},
-					y: {
-						stacked: true
+		[
+			'bar',
+			'horizontalBar'
+		].forEach(function(barType) {
+			var chart = window.acquireChart({
+				type: barType,
+				data: {
+					datasets: [
+						{data: []},
+						{data: []},
+						{data: []},
+						{data: []}
+					],
+					labels: []
+				},
+				options: {
+					scales: {
+						xAxes: [{
+							stacked: true
+						}],
+						yAxes: [{
+							stacked: true
+						}]
 					}
 				}
-			}
-		});
+			});
 
-		var meta = chart.getDatasetMeta(1);
-		expect(meta.controller._getStackIndex(0)).toBe(0);
-		expect(meta.controller._getStackIndex(1)).toBe(0);
-		expect(meta.controller._getStackIndex(2)).toBe(0);
-		expect(meta.controller._getStackIndex(3)).toBe(0);
+			var meta = chart.getDatasetMeta(1);
+			expect(meta.controller.getStackIndex(0)).toBe(0);
+			expect(meta.controller.getStackIndex(1)).toBe(0);
+			expect(meta.controller.getStackIndex(2)).toBe(0);
+			expect(meta.controller.getStackIndex(3)).toBe(0);
+		});
 	});
 
 	it('should correctly get the stack index when a group is not specified and the scale is not stacked', function() {
-		var chart = window.acquireChart({
-			type: 'bar',
-			data: {
-				datasets: [
-					{data: []},
-					{data: []},
-					{data: []},
-					{data: []}
-				],
-				labels: []
-			},
-			options: {
-				scales: {
-					x: {
-						stacked: false
-					},
-					y: {
-						stacked: false
+		[
+			'bar',
+			'horizontalBar'
+		].forEach(function(barType) {
+			var chart = window.acquireChart({
+				type: barType,
+				data: {
+					datasets: [
+						{data: []},
+						{data: []},
+						{data: []},
+						{data: []}
+					],
+					labels: []
+				},
+				options: {
+					scales: {
+						xAxes: [{
+							stacked: false
+						}],
+						yAxes: [{
+							stacked: false
+						}]
 					}
 				}
-			}
-		});
+			});
 
-		var meta = chart.getDatasetMeta(1);
-		expect(meta.controller._getStackIndex(0)).toBe(0);
-		expect(meta.controller._getStackIndex(1)).toBe(1);
-		expect(meta.controller._getStackIndex(2)).toBe(2);
-		expect(meta.controller._getStackIndex(3)).toBe(3);
+			var meta = chart.getDatasetMeta(1);
+			expect(meta.controller.getStackIndex(0)).toBe(0);
+			expect(meta.controller.getStackIndex(1)).toBe(1);
+			expect(meta.controller.getStackIndex(2)).toBe(2);
+			expect(meta.controller.getStackIndex(3)).toBe(3);
+		});
 	});
 
 	it('should correctly get the stack index when a group is specified for some', function() {
-		var chart = window.acquireChart({
-			type: 'bar',
-			data: {
-				datasets: [
-					{data: [], stack: 'stack1'},
-					{data: [], stack: 'stack1'},
-					{data: []},
-					{data: []}
-				],
-				labels: []
-			}
-		});
+		[
+			'bar',
+			'horizontalBar'
+		].forEach(function(barType) {
+			var chart = window.acquireChart({
+				type: barType,
+				data: {
+					datasets: [
+						{data: [], stack: 'stack1'},
+						{data: [], stack: 'stack1'},
+						{data: []},
+						{data: []}
+					],
+					labels: []
+				}
+			});
 
-		var meta = chart.getDatasetMeta(1);
-		expect(meta.controller._getStackIndex(0)).toBe(0);
-		expect(meta.controller._getStackIndex(1)).toBe(0);
-		expect(meta.controller._getStackIndex(2)).toBe(1);
-		expect(meta.controller._getStackIndex(3)).toBe(2);
+			var meta = chart.getDatasetMeta(1);
+			expect(meta.controller.getStackIndex(0)).toBe(0);
+			expect(meta.controller.getStackIndex(1)).toBe(0);
+			expect(meta.controller.getStackIndex(2)).toBe(1);
+			expect(meta.controller.getStackIndex(3)).toBe(2);
+		});
 	});
 
 	it('should correctly get the stack index when a group is specified for some and the scale is stacked', function() {
-		var chart = window.acquireChart({
-			type: 'bar',
-			data: {
-				datasets: [
-					{data: [], stack: 'stack1'},
-					{data: [], stack: 'stack1'},
-					{data: []},
-					{data: []}
-				],
-				labels: []
-			},
-			options: {
-				scales: {
-					x: {
-						stacked: true
-					},
-					y: {
-						stacked: true
+		[
+			'bar',
+			'horizontalBar'
+		].forEach(function(barType) {
+			var chart = window.acquireChart({
+				type: barType,
+				data: {
+					datasets: [
+						{data: [], stack: 'stack1'},
+						{data: [], stack: 'stack1'},
+						{data: []},
+						{data: []}
+					],
+					labels: []
+				},
+				options: {
+					scales: {
+						xAxes: [{
+							stacked: true
+						}],
+						yAxes: [{
+							stacked: true
+						}]
 					}
 				}
-			}
-		});
+			});
 
-		var meta = chart.getDatasetMeta(1);
-		expect(meta.controller._getStackIndex(0)).toBe(0);
-		expect(meta.controller._getStackIndex(1)).toBe(0);
-		expect(meta.controller._getStackIndex(2)).toBe(1);
-		expect(meta.controller._getStackIndex(3)).toBe(1);
+			var meta = chart.getDatasetMeta(1);
+			expect(meta.controller.getStackIndex(0)).toBe(0);
+			expect(meta.controller.getStackIndex(1)).toBe(0);
+			expect(meta.controller.getStackIndex(2)).toBe(1);
+			expect(meta.controller.getStackIndex(3)).toBe(1);
+		});
 	});
 
 	it('should correctly get the stack index when a group is specified for some and the scale is not stacked', function() {
-		var chart = window.acquireChart({
-			type: 'bar',
-			data: {
-				datasets: [
-					{data: [], stack: 'stack1'},
-					{data: [], stack: 'stack1'},
-					{data: []},
-					{data: []}
-				],
-				labels: []
-			},
-			options: {
-				scales: {
-					x: {
-						stacked: false
-					},
-					y: {
-						stacked: false
+		[
+			'bar',
+			'horizontalBar'
+		].forEach(function(barType) {
+			var chart = window.acquireChart({
+				type: barType,
+				data: {
+					datasets: [
+						{data: [], stack: 'stack1'},
+						{data: [], stack: 'stack1'},
+						{data: []},
+						{data: []}
+					],
+					labels: []
+				},
+				options: {
+					scales: {
+						xAxes: [{
+							stacked: false
+						}],
+						yAxes: [{
+							stacked: false
+						}]
 					}
 				}
-			}
-		});
+			});
 
-		var meta = chart.getDatasetMeta(1);
-		expect(meta.controller._getStackIndex(0)).toBe(0);
-		expect(meta.controller._getStackIndex(1)).toBe(1);
-		expect(meta.controller._getStackIndex(2)).toBe(2);
-		expect(meta.controller._getStackIndex(3)).toBe(3);
+			var meta = chart.getDatasetMeta(1);
+			expect(meta.controller.getStackIndex(0)).toBe(0);
+			expect(meta.controller.getStackIndex(1)).toBe(1);
+			expect(meta.controller.getStackIndex(2)).toBe(2);
+			expect(meta.controller.getStackIndex(3)).toBe(3);
+		});
 	});
 
 	it('should correctly get the stack index when a group is specified for all', function() {
-		var chart = window.acquireChart({
-			type: 'bar',
-			data: {
-				datasets: [
-					{data: [], stack: 'stack1'},
-					{data: [], stack: 'stack1'},
-					{data: [], stack: 'stack2'},
-					{data: [], stack: 'stack2'}
-				],
-				labels: []
-			}
-		});
+		[
+			'bar',
+			'horizontalBar'
+		].forEach(function(barType) {
+			var chart = window.acquireChart({
+				type: barType,
+				data: {
+					datasets: [
+						{data: [], stack: 'stack1'},
+						{data: [], stack: 'stack1'},
+						{data: [], stack: 'stack2'},
+						{data: [], stack: 'stack2'}
+					],
+					labels: []
+				}
+			});
 
-		var meta = chart.getDatasetMeta(1);
-		expect(meta.controller._getStackIndex(0)).toBe(0);
-		expect(meta.controller._getStackIndex(1)).toBe(0);
-		expect(meta.controller._getStackIndex(2)).toBe(1);
-		expect(meta.controller._getStackIndex(3)).toBe(1);
+			var meta = chart.getDatasetMeta(1);
+			expect(meta.controller.getStackIndex(0)).toBe(0);
+			expect(meta.controller.getStackIndex(1)).toBe(0);
+			expect(meta.controller.getStackIndex(2)).toBe(1);
+			expect(meta.controller.getStackIndex(3)).toBe(1);
+		});
 	});
 
 	it('should correctly get the stack index when a group is specified for all and the scale is stacked', function() {
-		var chart = window.acquireChart({
-			type: 'bar',
-			data: {
-				datasets: [
-					{data: [], stack: 'stack1'},
-					{data: [], stack: 'stack1'},
-					{data: [], stack: 'stack2'},
-					{data: [], stack: 'stack2'}
-				],
-				labels: []
-			},
-			options: {
-				scales: {
-					x: {
-						stacked: true
-					},
-					y: {
-						stacked: true
+		[
+			'bar',
+			'horizontalBar'
+		].forEach(function(barType) {
+			var chart = window.acquireChart({
+				type: barType,
+				data: {
+					datasets: [
+						{data: [], stack: 'stack1'},
+						{data: [], stack: 'stack1'},
+						{data: [], stack: 'stack2'},
+						{data: [], stack: 'stack2'}
+					],
+					labels: []
+				},
+				options: {
+					scales: {
+						xAxes: [{
+							stacked: true
+						}],
+						yAxes: [{
+							stacked: true
+						}]
 					}
 				}
-			}
-		});
+			});
 
-		var meta = chart.getDatasetMeta(1);
-		expect(meta.controller._getStackIndex(0)).toBe(0);
-		expect(meta.controller._getStackIndex(1)).toBe(0);
-		expect(meta.controller._getStackIndex(2)).toBe(1);
-		expect(meta.controller._getStackIndex(3)).toBe(1);
+			var meta = chart.getDatasetMeta(1);
+			expect(meta.controller.getStackIndex(0)).toBe(0);
+			expect(meta.controller.getStackIndex(1)).toBe(0);
+			expect(meta.controller.getStackIndex(2)).toBe(1);
+			expect(meta.controller.getStackIndex(3)).toBe(1);
+		});
 	});
 
 	it('should correctly get the stack index when a group is specified for all and the scale is not stacked', function() {
-		var chart = window.acquireChart({
-			type: 'bar',
-			data: {
-				datasets: [
-					{data: [], stack: 'stack1'},
-					{data: [], stack: 'stack1'},
-					{data: [], stack: 'stack2'},
-					{data: [], stack: 'stack2'}
-				],
-				labels: []
-			},
-			options: {
-				scales: {
-					x: {
-						stacked: false
-					},
-					y: {
-						stacked: false
+		[
+			'bar',
+			'horizontalBar'
+		].forEach(function(barType) {
+			var chart = window.acquireChart({
+				type: barType,
+				data: {
+					datasets: [
+						{data: [], stack: 'stack1'},
+						{data: [], stack: 'stack1'},
+						{data: [], stack: 'stack2'},
+						{data: [], stack: 'stack2'}
+					],
+					labels: []
+				},
+				options: {
+					scales: {
+						xAxes: [{
+							stacked: false
+						}],
+						yAxes: [{
+							stacked: false
+						}]
 					}
 				}
-			}
-		});
+			});
 
-		var meta = chart.getDatasetMeta(1);
-		expect(meta.controller._getStackIndex(0)).toBe(0);
-		expect(meta.controller._getStackIndex(1)).toBe(1);
-		expect(meta.controller._getStackIndex(2)).toBe(2);
-		expect(meta.controller._getStackIndex(3)).toBe(3);
+			var meta = chart.getDatasetMeta(1);
+			expect(meta.controller.getStackIndex(0)).toBe(0);
+			expect(meta.controller.getStackIndex(1)).toBe(1);
+			expect(meta.controller.getStackIndex(2)).toBe(2);
+			expect(meta.controller.getStackIndex(3)).toBe(3);
+		});
 	});
 
-	it('should create bar elements for each data item during initialization', function() {
+	it('should create rectangle elements for each data item during initialization', function() {
 		var chart = window.acquireChart({
 			type: 'bar',
 			data: {
@@ -568,11 +674,11 @@ describe('Chart.controllers.bar', function() {
 		});
 
 		var meta = chart.getDatasetMeta(1);
-		expect(meta.data.length).toBe(4); // 4 bars created
-		expect(meta.data[0] instanceof Chart.elements.BarElement).toBe(true);
-		expect(meta.data[1] instanceof Chart.elements.BarElement).toBe(true);
-		expect(meta.data[2] instanceof Chart.elements.BarElement).toBe(true);
-		expect(meta.data[3] instanceof Chart.elements.BarElement).toBe(true);
+		expect(meta.data.length).toBe(4); // 4 rectangles created
+		expect(meta.data[0] instanceof Chart.elements.Rectangle).toBe(true);
+		expect(meta.data[1] instanceof Chart.elements.Rectangle).toBe(true);
+		expect(meta.data[2] instanceof Chart.elements.Rectangle).toBe(true);
+		expect(meta.data[3] instanceof Chart.elements.Rectangle).toBe(true);
 	});
 
 	it('should update elements when modifying data', function() {
@@ -593,7 +699,7 @@ describe('Chart.controllers.bar', function() {
 				legend: false,
 				title: false,
 				elements: {
-					bar: {
+					rectangle: {
 						backgroundColor: 'red',
 						borderSkipped: 'top',
 						borderColor: 'green',
@@ -601,15 +707,16 @@ describe('Chart.controllers.bar', function() {
 					}
 				},
 				scales: {
-					x: {
+					xAxes: [{
+						id: 'firstXScaleID',
 						type: 'category',
 						display: false
-					},
-					y: {
+					}],
+					yAxes: [{
+						id: 'firstYScaleID',
 						type: 'linear',
-						display: false,
-						beginAtZero: false
-					}
+						display: false
+					}]
 				}
 			}
 		});
@@ -622,17 +729,22 @@ describe('Chart.controllers.bar', function() {
 		chart.update();
 
 		expect(meta.data.length).toBe(2);
-		expect(meta._parsed.length).toBe(2);
 
 		[
 			{x: 89, y: 512},
 			{x: 217, y: 0}
 		].forEach(function(expected, i) {
-			expect(meta.data[i].x).toBeCloseToPixel(expected.x);
-			expect(meta.data[i].y).toBeCloseToPixel(expected.y);
-			expect(meta.data[i].base).toBeCloseToPixel(522);
-			expect(meta.data[i].width).toBeCloseToPixel(46);
-			expect(meta.data[i].options).toEqual(jasmine.objectContaining({
+			expect(meta.data[i]._datasetIndex).toBe(1);
+			expect(meta.data[i]._index).toBe(i);
+			expect(meta.data[i]._xScale).toBe(chart.scales.firstXScaleID);
+			expect(meta.data[i]._yScale).toBe(chart.scales.firstYScaleID);
+			expect(meta.data[i]._model.x).toBeCloseToPixel(expected.x);
+			expect(meta.data[i]._model.y).toBeCloseToPixel(expected.y);
+			expect(meta.data[i]._model.base).toBeCloseToPixel(1024);
+			expect(meta.data[i]._model.width).toBeCloseToPixel(46);
+			expect(meta.data[i]._model).toEqual(jasmine.objectContaining({
+				datasetLabel: chart.data.datasets[1].label,
+				label: chart.data.labels[i],
 				backgroundColor: 'red',
 				borderSkipped: 'top',
 				borderColor: 'blue',
@@ -667,15 +779,14 @@ describe('Chart.controllers.bar', function() {
 				legend: false,
 				title: false,
 				scales: {
-					x: {
+					xAxes: [{
 						type: 'category',
 						display: false
-					},
-					y: {
+					}],
+					yAxes: [{
 						type: 'linear',
-						display: false,
-						beginAtZero: false
-					}
+						display: false
+					}]
 				}
 			}
 		});
@@ -686,53 +797,11 @@ describe('Chart.controllers.bar', function() {
 		var bar1 = meta.data[0];
 		var bar2 = meta.data[1];
 
-		expect(bar1.x).toBeCloseToPixel(179);
-		expect(bar1.y).toBeCloseToPixel(114);
-		expect(bar2.x).toBeCloseToPixel(435);
-		expect(bar2.y).toBeCloseToPixel(0);
+		expect(bar1._model.x).toBeCloseToPixel(179);
+		expect(bar1._model.y).toBeCloseToPixel(114);
+		expect(bar2._model.x).toBeCloseToPixel(435);
+		expect(bar2._model.y).toBeCloseToPixel(0);
 	});
-
-	it('should get the bar points for hidden dataset', function() {
-		var chart = window.acquireChart({
-			type: 'bar',
-			data: {
-				datasets: [{
-					data: [1, 2],
-					label: 'dataset1',
-					hidden: true
-				}],
-				labels: ['label1', 'label2']
-			},
-			options: {
-				legend: false,
-				title: false,
-				scales: {
-					x: {
-						type: 'category',
-						display: false
-					},
-					y: {
-						type: 'linear',
-						min: 0,
-						max: 2,
-						display: false
-					}
-				}
-			}
-		});
-
-		var meta = chart.getDatasetMeta(0);
-		expect(meta.data.length).toBe(2);
-
-		var bar1 = meta.data[0];
-		var bar2 = meta.data[1];
-
-		expect(bar1.x).toBeCloseToPixel(128);
-		expect(bar1.y).toBeCloseToPixel(256);
-		expect(bar2.x).toBeCloseToPixel(384);
-		expect(bar2.y).toBeCloseToPixel(0);
-	});
-
 
 	it('should update elements when the scales are stacked', function() {
 		var chart = window.acquireChart({
@@ -751,15 +820,15 @@ describe('Chart.controllers.bar', function() {
 				legend: false,
 				title: false,
 				scales: {
-					x: {
+					xAxes: [{
 						type: 'category',
 						display: false
-					},
-					y: {
+					}],
+					yAxes: [{
 						type: 'linear',
 						display: false,
 						stacked: true
-					}
+					}]
 				}
 			}
 		});
@@ -772,10 +841,10 @@ describe('Chart.controllers.bar', function() {
 			{b: 293, w: 92 / 2, x: 295, y: 146},
 			{b: 293, w: 92 / 2, x: 422, y: 439}
 		].forEach(function(values, i) {
-			expect(meta0.data[i].base).toBeCloseToPixel(values.b);
-			expect(meta0.data[i].width).toBeCloseToPixel(values.w);
-			expect(meta0.data[i].x).toBeCloseToPixel(values.x);
-			expect(meta0.data[i].y).toBeCloseToPixel(values.y);
+			expect(meta0.data[i]._model.base).toBeCloseToPixel(values.b);
+			expect(meta0.data[i]._model.width).toBeCloseToPixel(values.w);
+			expect(meta0.data[i]._model.x).toBeCloseToPixel(values.x);
+			expect(meta0.data[i]._model.y).toBeCloseToPixel(values.y);
 		});
 
 		var meta1 = chart.getDatasetMeta(1);
@@ -786,10 +855,10 @@ describe('Chart.controllers.bar', function() {
 			{b: 146, w: 92 / 2, x: 345, y: 146},
 			{b: 439, w: 92 / 2, x: 473, y: 497}
 		].forEach(function(values, i) {
-			expect(meta1.data[i].base).toBeCloseToPixel(values.b);
-			expect(meta1.data[i].width).toBeCloseToPixel(values.w);
-			expect(meta1.data[i].x).toBeCloseToPixel(values.x);
-			expect(meta1.data[i].y).toBeCloseToPixel(values.y);
+			expect(meta1.data[i]._model.base).toBeCloseToPixel(values.b);
+			expect(meta1.data[i]._model.width).toBeCloseToPixel(values.w);
+			expect(meta1.data[i]._model.x).toBeCloseToPixel(values.x);
+			expect(meta1.data[i]._model.y).toBeCloseToPixel(values.y);
 		});
 	});
 
@@ -810,17 +879,19 @@ describe('Chart.controllers.bar', function() {
 				legend: false,
 				title: false,
 				scales: {
-					x: {
+					xAxes: [{
 						type: 'category',
 						display: false
-					},
-					y: {
+					}],
+					yAxes: [{
 						type: 'linear',
 						display: false,
 						stacked: true,
-						min: 50,
-						max: 100
-					}
+						ticks: {
+							min: 50,
+							max: 100
+						}
+					}]
 				}
 			}
 		});
@@ -828,29 +899,29 @@ describe('Chart.controllers.bar', function() {
 		var meta0 = chart.getDatasetMeta(0);
 
 		[
-			{b: 522, w: 92 / 2, x: 38, y: 512},
-			{b: 522, w: 92 / 2, x: 166, y: 819},
-			{b: 522, w: 92 / 2, x: 294, y: 922},
-			{b: 522, w: 92 / 2, x: 422.5, y: 0}
+			{b: 1024, w: 92 / 2, x: 38, y: 512},
+			{b: 1024, w: 92 / 2, x: 166, y: 819},
+			{b: 1024, w: 92 / 2, x: 294, y: 922},
+			{b: 1024, w: 92 / 2, x: 422.5, y: 0}
 		].forEach(function(values, i) {
-			expect(meta0.data[i].base).toBeCloseToPixel(values.b);
-			expect(meta0.data[i].width).toBeCloseToPixel(values.w);
-			expect(meta0.data[i].x).toBeCloseToPixel(values.x);
-			expect(meta0.data[i].y).toBeCloseToPixel(values.y);
+			expect(meta0.data[i]._model.base).toBeCloseToPixel(values.b);
+			expect(meta0.data[i]._model.width).toBeCloseToPixel(values.w);
+			expect(meta0.data[i]._model.x).toBeCloseToPixel(values.x);
+			expect(meta0.data[i]._model.y).toBeCloseToPixel(values.y);
 		});
 
 		var meta1 = chart.getDatasetMeta(1);
 
 		[
 			{b: 512, w: 92 / 2, x: 89, y: 0},
-			{b: 522, w: 92 / 2, x: 217, y: 0},
-			{b: 522, w: 92 / 2, x: 345, y: 0},
+			{b: 819, w: 92 / 2, x: 217, y: 0},
+			{b: 922, w: 92 / 2, x: 345, y: 0},
 			{b: 0, w: 92 / 2, x: 473.5, y: 0}
 		].forEach(function(values, i) {
-			expect(meta1.data[i].base).toBeCloseToPixel(values.b);
-			expect(meta1.data[i].width).toBeCloseToPixel(values.w);
-			expect(meta1.data[i].x).toBeCloseToPixel(values.x);
-			expect(meta1.data[i].y).toBeCloseToPixel(values.y);
+			expect(meta1.data[i]._model.base).toBeCloseToPixel(values.b);
+			expect(meta1.data[i]._model.width).toBeCloseToPixel(values.w);
+			expect(meta1.data[i]._model.x).toBeCloseToPixel(values.x);
+			expect(meta1.data[i]._model.y).toBeCloseToPixel(values.y);
 		});
 	});
 
@@ -871,15 +942,15 @@ describe('Chart.controllers.bar', function() {
 				legend: false,
 				title: false,
 				scales: {
-					x: {
+					xAxes: [{
 						type: 'category',
 						display: false,
 						stacked: true
-					},
-					y: {
+					}],
+					yAxes: [{
 						type: 'linear',
 						display: false
-					}
+					}]
 				}
 			}
 		});
@@ -892,10 +963,10 @@ describe('Chart.controllers.bar', function() {
 			{b: 293, w: 92, x: 320, y: 146},
 			{b: 293, w: 92, x: 448, y: 439}
 		].forEach(function(values, i) {
-			expect(meta0.data[i].base).toBeCloseToPixel(values.b);
-			expect(meta0.data[i].width).toBeCloseToPixel(values.w);
-			expect(meta0.data[i].x).toBeCloseToPixel(values.x);
-			expect(meta0.data[i].y).toBeCloseToPixel(values.y);
+			expect(meta0.data[i]._model.base).toBeCloseToPixel(values.b);
+			expect(meta0.data[i]._model.width).toBeCloseToPixel(values.w);
+			expect(meta0.data[i]._model.x).toBeCloseToPixel(values.x);
+			expect(meta0.data[i]._model.y).toBeCloseToPixel(values.y);
 		});
 
 		var meta1 = chart.getDatasetMeta(1);
@@ -906,10 +977,10 @@ describe('Chart.controllers.bar', function() {
 			{b: 293, w: 92, x: 320, y: 293},
 			{b: 293, w: 92, x: 448, y: 497}
 		].forEach(function(values, i) {
-			expect(meta1.data[i].base).toBeCloseToPixel(values.b);
-			expect(meta1.data[i].width).toBeCloseToPixel(values.w);
-			expect(meta1.data[i].x).toBeCloseToPixel(values.x);
-			expect(meta1.data[i].y).toBeCloseToPixel(values.y);
+			expect(meta1.data[i]._model.base).toBeCloseToPixel(values.b);
+			expect(meta1.data[i]._model.width).toBeCloseToPixel(values.w);
+			expect(meta1.data[i]._model.x).toBeCloseToPixel(values.x);
+			expect(meta1.data[i]._model.y).toBeCloseToPixel(values.y);
 		});
 	});
 
@@ -930,15 +1001,15 @@ describe('Chart.controllers.bar', function() {
 				legend: false,
 				title: false,
 				scales: {
-					x: {
+					xAxes: [{
 						type: 'category',
 						display: false
-					},
-					y: {
+					}],
+					yAxes: [{
 						type: 'linear',
 						display: false,
 						stacked: true
-					}
+					}]
 				}
 			}
 		});
@@ -951,10 +1022,10 @@ describe('Chart.controllers.bar', function() {
 			{b: 293, w: 92 / 2, x: 295, y: 146},
 			{b: 293, w: 92 / 2, x: 422, y: 439}
 		].forEach(function(values, i) {
-			expect(meta0.data[i].base).toBeCloseToPixel(values.b);
-			expect(meta0.data[i].width).toBeCloseToPixel(values.w);
-			expect(meta0.data[i].x).toBeCloseToPixel(values.x);
-			expect(meta0.data[i].y).toBeCloseToPixel(values.y);
+			expect(meta0.data[i]._model.base).toBeCloseToPixel(values.b);
+			expect(meta0.data[i]._model.width).toBeCloseToPixel(values.w);
+			expect(meta0.data[i]._model.x).toBeCloseToPixel(values.x);
+			expect(meta0.data[i]._model.y).toBeCloseToPixel(values.y);
 		});
 
 		var meta1 = chart.getDatasetMeta(1);
@@ -965,10 +1036,10 @@ describe('Chart.controllers.bar', function() {
 			{b: 146, w: 92 / 2, x: 345, y: 146},
 			{b: 439, w: 92 / 2, x: 473, y: 497}
 		].forEach(function(values, i) {
-			expect(meta1.data[i].base).toBeCloseToPixel(values.b);
-			expect(meta1.data[i].width).toBeCloseToPixel(values.w);
-			expect(meta1.data[i].x).toBeCloseToPixel(values.x);
-			expect(meta1.data[i].y).toBeCloseToPixel(values.y);
+			expect(meta1.data[i]._model.base).toBeCloseToPixel(values.b);
+			expect(meta1.data[i]._model.width).toBeCloseToPixel(values.w);
+			expect(meta1.data[i]._model.x).toBeCloseToPixel(values.x);
+			expect(meta1.data[i]._model.y).toBeCloseToPixel(values.y);
 		});
 	});
 
@@ -991,15 +1062,15 @@ describe('Chart.controllers.bar', function() {
 				legend: false,
 				title: false,
 				scales: {
-					x: {
+					xAxes: [{
 						type: 'category',
 						display: false
-					},
-					y: {
+					}],
+					yAxes: [{
 						type: 'linear',
 						display: false,
 						stacked: true
-					}
+					}]
 				}
 			}
 		});
@@ -1012,10 +1083,10 @@ describe('Chart.controllers.bar', function() {
 			{b: 293, w: 92, x: 320, y: 146},
 			{b: 293, w: 92, x: 448, y: 439}
 		].forEach(function(values, i) {
-			expect(meta0.data[i].base).toBeCloseToPixel(values.b);
-			expect(meta0.data[i].width).toBeCloseToPixel(values.w);
-			expect(meta0.data[i].x).toBeCloseToPixel(values.x);
-			expect(meta0.data[i].y).toBeCloseToPixel(values.y);
+			expect(meta0.data[i]._model.base).toBeCloseToPixel(values.b);
+			expect(meta0.data[i]._model.width).toBeCloseToPixel(values.w);
+			expect(meta0.data[i]._model.x).toBeCloseToPixel(values.x);
+			expect(meta0.data[i]._model.y).toBeCloseToPixel(values.y);
 		});
 
 		var meta = chart.getDatasetMeta(1);
@@ -1026,10 +1097,10 @@ describe('Chart.controllers.bar', function() {
 			{b: 146, w: 92, x: 320, y: 146},
 			{b: 439, w: 92, x: 448, y: 497}
 		].forEach(function(values, i) {
-			expect(meta.data[i].base).toBeCloseToPixel(values.b);
-			expect(meta.data[i].width).toBeCloseToPixel(values.w);
-			expect(meta.data[i].x).toBeCloseToPixel(values.x);
-			expect(meta.data[i].y).toBeCloseToPixel(values.y);
+			expect(meta.data[i]._model.base).toBeCloseToPixel(values.b);
+			expect(meta.data[i]._model.width).toBeCloseToPixel(values.w);
+			expect(meta.data[i]._model.x).toBeCloseToPixel(values.x);
+			expect(meta.data[i]._model.y).toBeCloseToPixel(values.y);
 		});
 	});
 
@@ -1050,15 +1121,15 @@ describe('Chart.controllers.bar', function() {
 				legend: false,
 				title: false,
 				scales: {
-					x: {
+					xAxes: [{
 						type: 'category',
 						display: false
-					},
-					y: {
+					}],
+					yAxes: [{
 						type: 'linear',
 						display: false,
 						stacked: true,
-					}
+					}]
 				}
 			}
 		});
@@ -1069,10 +1140,10 @@ describe('Chart.controllers.bar', function() {
 			{x: 89, y: 256},
 			{x: 217, y: 0}
 		].forEach(function(values, i) {
-			expect(meta.data[i].base).toBeCloseToPixel(512);
-			expect(meta.data[i].width).toBeCloseToPixel(46);
-			expect(meta.data[i].x).toBeCloseToPixel(values.x);
-			expect(meta.data[i].y).toBeCloseToPixel(values.y);
+			expect(meta.data[i]._model.base).toBeCloseToPixel(512);
+			expect(meta.data[i]._model.width).toBeCloseToPixel(46);
+			expect(meta.data[i]._model.x).toBeCloseToPixel(values.x);
+			expect(meta.data[i]._model.y).toBeCloseToPixel(values.y);
 		});
 	});
 
@@ -1096,15 +1167,15 @@ describe('Chart.controllers.bar', function() {
 				legend: false,
 				title: false,
 				scales: {
-					x: {
+					xAxes: [{
 						type: 'category',
 						display: false
-					},
-					y: {
+					}],
+					yAxes: [{
 						type: 'linear',
 						display: false,
 						stacked: true
-					}
+					}]
 				}
 			}
 		});
@@ -1115,10 +1186,71 @@ describe('Chart.controllers.bar', function() {
 			{b: 384, x: 89, y: 256},
 			{b: 256, x: 217, y: 0}
 		].forEach(function(values, i) {
-			expect(meta.data[i].base).toBeCloseToPixel(values.b);
-			expect(meta.data[i].width).toBeCloseToPixel(46);
-			expect(meta.data[i].x).toBeCloseToPixel(values.x);
-			expect(meta.data[i].y).toBeCloseToPixel(values.y);
+			expect(meta.data[i]._model.base).toBeCloseToPixel(values.b);
+			expect(meta.data[i]._model.width).toBeCloseToPixel(46);
+			expect(meta.data[i]._model.x).toBeCloseToPixel(values.x);
+			expect(meta.data[i]._model.y).toBeCloseToPixel(values.y);
+		});
+	});
+
+	it('should update elements when the scales are stacked and the y axis is logarithmic', function() {
+		var chart = window.acquireChart({
+			type: 'bar',
+			data: {
+				datasets: [{
+					data: [10, 100, 10, 100],
+					label: 'dataset1'
+				}, {
+					data: [100, 10, 0, 100],
+					label: 'dataset2'
+				}],
+				labels: ['label1', 'label2', 'label3', 'label4']
+			},
+			options: {
+				legend: false,
+				title: false,
+				scales: {
+					xAxes: [{
+						type: 'category',
+						display: false,
+						stacked: true,
+						barPercentage: 1,
+					}],
+					yAxes: [{
+						type: 'logarithmic',
+						display: false,
+						stacked: true
+					}]
+				}
+			}
+		});
+
+		var meta0 = chart.getDatasetMeta(0);
+
+		[
+			{b: 512, w: 102, x: 64, y: 512},
+			{b: 512, w: 102, x: 192, y: 118},
+			{b: 512, w: 102, x: 320, y: 512},
+			{b: 512, w: 102, x: 449, y: 118}
+		].forEach(function(values, i) {
+			expect(meta0.data[i]._model.base).toBeCloseToPixel(values.b);
+			expect(meta0.data[i]._model.width).toBeCloseToPixel(values.w);
+			expect(meta0.data[i]._model.x).toBeCloseToPixel(values.x);
+			expect(meta0.data[i]._model.y).toBeCloseToPixel(values.y);
+		});
+
+		var meta1 = chart.getDatasetMeta(1);
+
+		[
+			{b: 512, w: 102, x: 64, y: 102},
+			{b: 118, w: 102, x: 192, y: 102},
+			{b: 512, w: 102, x: 320, y: 512},
+			{b: 118, w: 102, x: 449, y: 0}
+		].forEach(function(values, i) {
+			expect(meta1.data[i]._model.base).toBeCloseToPixel(values.b);
+			expect(meta1.data[i]._model.width).toBeCloseToPixel(values.w);
+			expect(meta1.data[i]._model.x).toBeCloseToPixel(values.x);
+			expect(meta1.data[i]._model.y).toBeCloseToPixel(values.y);
 		});
 	});
 
@@ -1151,7 +1283,7 @@ describe('Chart.controllers.bar', function() {
 		expect(meta.data[3].draw.calls.count()).toBe(1);
 	});
 
-	it('should set hover styles on bars', function() {
+	it('should set hover styles on rectangles', function() {
 		var chart = window.acquireChart({
 			type: 'bar',
 			data: {
@@ -1165,7 +1297,7 @@ describe('Chart.controllers.bar', function() {
 			},
 			options: {
 				elements: {
-					bar: {
+					rectangle: {
 						backgroundColor: 'rgb(255, 0, 0)',
 						borderColor: 'rgb(0, 0, 255)',
 						borderWidth: 2,
@@ -1177,32 +1309,42 @@ describe('Chart.controllers.bar', function() {
 		var meta = chart.getDatasetMeta(1);
 		var bar = meta.data[0];
 
-		meta.controller.setHoverStyle(bar, 1, 0);
-		expect(bar.options.backgroundColor).toBe('#E60000');
-		expect(bar.options.borderColor).toBe('#0000E6');
-		expect(bar.options.borderWidth).toBe(2);
+		meta.controller.setHoverStyle(bar);
+		expect(bar._model.backgroundColor).toBe('rgb(230, 0, 0)');
+		expect(bar._model.borderColor).toBe('rgb(0, 0, 230)');
+		expect(bar._model.borderWidth).toBe(2);
 
 		// Set a dataset style
 		chart.data.datasets[1].hoverBackgroundColor = 'rgb(128, 128, 128)';
 		chart.data.datasets[1].hoverBorderColor = 'rgb(0, 0, 0)';
 		chart.data.datasets[1].hoverBorderWidth = 5;
-		chart.update();
 
-		meta.controller.setHoverStyle(bar, 1, 0);
-		expect(bar.options.backgroundColor).toBe('rgb(128, 128, 128)');
-		expect(bar.options.borderColor).toBe('rgb(0, 0, 0)');
-		expect(bar.options.borderWidth).toBe(5);
+		meta.controller.setHoverStyle(bar);
+		expect(bar._model.backgroundColor).toBe('rgb(128, 128, 128)');
+		expect(bar._model.borderColor).toBe('rgb(0, 0, 0)');
+		expect(bar._model.borderWidth).toBe(5);
 
 		// Should work with array styles so that we can set per bar
 		chart.data.datasets[1].hoverBackgroundColor = ['rgb(255, 255, 255)', 'rgb(128, 128, 128)'];
 		chart.data.datasets[1].hoverBorderColor = ['rgb(9, 9, 9)', 'rgb(0, 0, 0)'];
 		chart.data.datasets[1].hoverBorderWidth = [2.5, 5];
-		chart.update();
 
-		meta.controller.setHoverStyle(bar, 1, 0);
-		expect(bar.options.backgroundColor).toBe('rgb(255, 255, 255)');
-		expect(bar.options.borderColor).toBe('rgb(9, 9, 9)');
-		expect(bar.options.borderWidth).toBe(2.5);
+		meta.controller.setHoverStyle(bar);
+		expect(bar._model.backgroundColor).toBe('rgb(255, 255, 255)');
+		expect(bar._model.borderColor).toBe('rgb(9, 9, 9)');
+		expect(bar._model.borderWidth).toBe(2.5);
+
+		// Should allow a custom style
+		bar.custom = {
+			hoverBackgroundColor: 'rgb(255, 0, 0)',
+			hoverBorderColor: 'rgb(0, 255, 0)',
+			hoverBorderWidth: 1.5
+		};
+
+		meta.controller.setHoverStyle(bar);
+		expect(bar._model.backgroundColor).toBe('rgb(255, 0, 0)');
+		expect(bar._model.borderColor).toBe('rgb(0, 255, 0)');
+		expect(bar._model.borderWidth).toBe(1.5);
 	});
 
 	it('should remove a hover style from a bar', function() {
@@ -1219,7 +1361,7 @@ describe('Chart.controllers.bar', function() {
 			},
 			options: {
 				elements: {
-					bar: {
+					rectangle: {
 						backgroundColor: 'rgb(255, 0, 0)',
 						borderColor: 'rgb(0, 0, 255)',
 						borderWidth: 2,
@@ -1233,22 +1375,22 @@ describe('Chart.controllers.bar', function() {
 		var helpers = window.Chart.helpers;
 
 		// Change default
-		chart.options.elements.bar.backgroundColor = 'rgb(128, 128, 128)';
-		chart.options.elements.bar.borderColor = 'rgb(15, 15, 15)';
-		chart.options.elements.bar.borderWidth = 3.14;
+		chart.options.elements.rectangle.backgroundColor = 'rgb(128, 128, 128)';
+		chart.options.elements.rectangle.borderColor = 'rgb(15, 15, 15)';
+		chart.options.elements.rectangle.borderWidth = 3.14;
 
 		chart.update();
-		expect(bar.options.backgroundColor).toBe('rgb(128, 128, 128)');
-		expect(bar.options.borderColor).toBe('rgb(15, 15, 15)');
-		expect(bar.options.borderWidth).toBe(3.14);
-		meta.controller.setHoverStyle(bar, 1, 0);
-		expect(bar.options.backgroundColor).toBe(helpers.getHoverColor('rgb(128, 128, 128)'));
-		expect(bar.options.borderColor).toBe(helpers.getHoverColor('rgb(15, 15, 15)'));
-		expect(bar.options.borderWidth).toBe(3.14);
+		expect(bar._model.backgroundColor).toBe('rgb(128, 128, 128)');
+		expect(bar._model.borderColor).toBe('rgb(15, 15, 15)');
+		expect(bar._model.borderWidth).toBe(3.14);
+		meta.controller.setHoverStyle(bar);
+		expect(bar._model.backgroundColor).toBe(helpers.getHoverColor('rgb(128, 128, 128)'));
+		expect(bar._model.borderColor).toBe(helpers.getHoverColor('rgb(15, 15, 15)'));
+		expect(bar._model.borderWidth).toBe(3.14);
 		meta.controller.removeHoverStyle(bar);
-		expect(bar.options.backgroundColor).toBe('rgb(128, 128, 128)');
-		expect(bar.options.borderColor).toBe('rgb(15, 15, 15)');
-		expect(bar.options.borderWidth).toBe(3.14);
+		expect(bar._model.backgroundColor).toBe('rgb(128, 128, 128)');
+		expect(bar._model.borderColor).toBe('rgb(15, 15, 15)');
+		expect(bar._model.borderWidth).toBe(3.14);
 
 		// Should work with array styles so that we can set per bar
 		chart.data.datasets[1].backgroundColor = ['rgb(255, 255, 255)', 'rgb(128, 128, 128)'];
@@ -1256,17 +1398,37 @@ describe('Chart.controllers.bar', function() {
 		chart.data.datasets[1].borderWidth = [2.5, 5];
 
 		chart.update();
-		expect(bar.options.backgroundColor).toBe('rgb(255, 255, 255)');
-		expect(bar.options.borderColor).toBe('rgb(9, 9, 9)');
-		expect(bar.options.borderWidth).toBe(2.5);
-		meta.controller.setHoverStyle(bar, 1, 0);
-		expect(bar.options.backgroundColor).toBe(helpers.getHoverColor('rgb(255, 255, 255)'));
-		expect(bar.options.borderColor).toBe(helpers.getHoverColor('rgb(9, 9, 9)'));
-		expect(bar.options.borderWidth).toBe(2.5);
+		expect(bar._model.backgroundColor).toBe('rgb(255, 255, 255)');
+		expect(bar._model.borderColor).toBe('rgb(9, 9, 9)');
+		expect(bar._model.borderWidth).toBe(2.5);
+		meta.controller.setHoverStyle(bar);
+		expect(bar._model.backgroundColor).toBe(helpers.getHoverColor('rgb(255, 255, 255)'));
+		expect(bar._model.borderColor).toBe(helpers.getHoverColor('rgb(9, 9, 9)'));
+		expect(bar._model.borderWidth).toBe(2.5);
 		meta.controller.removeHoverStyle(bar);
-		expect(bar.options.backgroundColor).toBe('rgb(255, 255, 255)');
-		expect(bar.options.borderColor).toBe('rgb(9, 9, 9)');
-		expect(bar.options.borderWidth).toBe(2.5);
+		expect(bar._model.backgroundColor).toBe('rgb(255, 255, 255)');
+		expect(bar._model.borderColor).toBe('rgb(9, 9, 9)');
+		expect(bar._model.borderWidth).toBe(2.5);
+
+		// Should allow a custom style
+		bar.custom = {
+			backgroundColor: 'rgb(255, 0, 0)',
+			borderColor: 'rgb(0, 255, 0)',
+			borderWidth: 1.5
+		};
+
+		chart.update();
+		expect(bar._model.backgroundColor).toBe('rgb(255, 0, 0)');
+		expect(bar._model.borderColor).toBe('rgb(0, 255, 0)');
+		expect(bar._model.borderWidth).toBe(1.5);
+		meta.controller.setHoverStyle(bar);
+		expect(bar._model.backgroundColor).toBe(helpers.getHoverColor('rgb(255, 0, 0)'));
+		expect(bar._model.borderColor).toBe(helpers.getHoverColor('rgb(0, 255, 0)'));
+		expect(bar._model.borderWidth).toBe(1.5);
+		meta.controller.removeHoverStyle(bar);
+		expect(bar._model.backgroundColor).toBe('rgb(255, 0, 0)');
+		expect(bar._model.borderColor).toBe('rgb(0, 255, 0)');
+		expect(bar._model.borderWidth).toBe(1.5);
 	});
 
 	describe('Bar width', function() {
@@ -1286,17 +1448,16 @@ describe('Chart.controllers.bar', function() {
 			var chart = window.acquireChart(this.config);
 			var meta = chart.getDatasetMeta(0);
 			var xScale = chart.scales[meta.xAxisID];
-			var options = Chart.defaults.controllers.bar.datasets;
 
-			var categoryPercentage = options.categoryPercentage;
-			var barPercentage = options.barPercentage;
+			var categoryPercentage = xScale.options.categoryPercentage;
+			var barPercentage = xScale.options.barPercentage;
 			var stacked = xScale.options.stacked;
 
 			var totalBarWidth = 0;
 			for (var i = 0; i < chart.data.datasets.length; i++) {
 				var bars = chart.getDatasetMeta(i).data;
-				for (var j = xScale.min; j <= xScale.max; j++) {
-					totalBarWidth += bars[j].width;
+				for (var j = xScale.minIndex; j <= xScale.maxIndex; j++) {
+					totalBarWidth += bars[j]._model.width;
 				}
 				if (stacked) {
 					break;
@@ -1315,10 +1476,12 @@ describe('Chart.controllers.bar', function() {
 				data: this.data,
 				options: {
 					scales: {
-						x: {
-							min: 'March',
-							max: 'May',
-						}
+						xAxes: [{
+							ticks: {
+								min: 'March',
+								max: 'May',
+							},
+						}]
 					}
 				}
 			};
@@ -1330,20 +1493,22 @@ describe('Chart.controllers.bar', function() {
 				data: this.data,
 				options: {
 					scales: {
-						x: {
-							min: 'March',
-							max: 'May',
-						},
-						y: {
+						xAxes: [{
+							ticks: {
+								min: 'March',
+								max: 'May',
+							}
+						}],
+						yAxes: [{
 							stacked: true
-						}
+						}]
 					}
 				}
 			};
 		});
 	});
 
-	describe('Bar height (horizontal type)', function() {
+	describe('Bar height (horizontalBar type)', function() {
 		beforeEach(function() {
 			// 2 datasets
 			this.data = {
@@ -1361,16 +1526,15 @@ describe('Chart.controllers.bar', function() {
 			var meta = chart.getDatasetMeta(0);
 			var yScale = chart.scales[meta.yAxisID];
 
-			var config = meta.controller._config;
-			var categoryPercentage = config.categoryPercentage;
-			var barPercentage = config.barPercentage;
+			var categoryPercentage = yScale.options.categoryPercentage;
+			var barPercentage = yScale.options.barPercentage;
 			var stacked = yScale.options.stacked;
 
 			var totalBarHeight = 0;
 			for (var i = 0; i < chart.data.datasets.length; i++) {
 				var bars = chart.getDatasetMeta(i).data;
-				for (var j = yScale.min; j <= yScale.max; j++) {
-					totalBarHeight += bars[j].height;
+				for (var j = yScale.minIndex; j <= yScale.maxIndex; j++) {
+					totalBarHeight += bars[j]._model.height;
 				}
 				if (stacked) {
 					break;
@@ -1385,15 +1549,16 @@ describe('Chart.controllers.bar', function() {
 
 		it('should correctly set bar height when min and max option is set.', function() {
 			this.config = {
-				type: 'bar',
+				type: 'horizontalBar',
 				data: this.data,
 				options: {
-					indexAxis: 'y',
 					scales: {
-						y: {
-							min: 'March',
-							max: 'May',
-						}
+						yAxes: [{
+							ticks: {
+								min: 'March',
+								max: 'May',
+							},
+						}]
 					}
 				}
 			};
@@ -1401,18 +1566,19 @@ describe('Chart.controllers.bar', function() {
 
 		it('should correctly set bar height when scale are stacked with min and max options.', function() {
 			this.config = {
-				type: 'bar',
+				type: 'horizontalBar',
 				data: this.data,
 				options: {
-					indexAxis: 'y',
 					scales: {
-						x: {
+						xAxes: [{
 							stacked: true
-						},
-						y: {
-							min: 'March',
-							max: 'May',
-						}
+						}],
+						yAxes: [{
+							ticks: {
+								min: 'March',
+								max: 'May',
+							}
+						}]
 					}
 				}
 			};
@@ -1436,19 +1602,15 @@ describe('Chart.controllers.bar', function() {
 						options: {
 							legend: false,
 							title: false,
-							bar: {
-								datasets: {
-									barThickness: barThickness
-								}
-							},
 							scales: {
-								x: {
+								xAxes: [{
 									id: 'x',
 									type: 'category',
-								},
-								y: {
+									barThickness: barThickness
+								}],
+								yAxes: [{
 									type: 'linear',
-								}
+								}]
 							}
 						}
 					});
@@ -1462,7 +1624,7 @@ describe('Chart.controllers.bar', function() {
 						expected = barThickness;
 					} else {
 						var scale = chart.scales.x;
-						var options = Chart.defaults.controllers.bar.datasets;
+						var options = chart.options.scales.xAxes[0];
 						var categoryPercentage = options.categoryPercentage;
 						var barPercentage = options.barPercentage;
 						var tickInterval = scale.getPixelForTick(1) - scale.getPixelForTick(0);
@@ -1472,116 +1634,26 @@ describe('Chart.controllers.bar', function() {
 
 					for (i = 0, ilen = chart.data.datasets.length; i < ilen; ++i) {
 						meta = chart.getDatasetMeta(i);
-						expect(meta.data[0].width).toBeCloseToPixel(expected);
-						expect(meta.data[1].width).toBeCloseToPixel(expected);
+						expect(meta.data[0]._model.width).toBeCloseToPixel(expected);
+						expect(meta.data[1]._model.width).toBeCloseToPixel(expected);
 					}
 				});
 
 				it('should correctly set bar width if maxBarThickness is specified', function() {
 					var chart = this.chart;
+					var options = chart.options.scales.xAxes[0];
 					var i, ilen, meta;
 
-					chart.data.datasets[0].maxBarThickness = 10;
-					chart.data.datasets[1].maxBarThickness = 10;
+					options.maxBarThickness = 10;
 					chart.update();
 
 					for (i = 0, ilen = chart.data.datasets.length; i < ilen; ++i) {
 						meta = chart.getDatasetMeta(i);
-						expect(meta.data[0].width).toBeCloseToPixel(10);
-						expect(meta.data[1].width).toBeCloseToPixel(10);
+						expect(meta.data[0]._model.width).toBeCloseToPixel(10);
+						expect(meta.data[1]._model.width).toBeCloseToPixel(10);
 					}
 				});
 			});
-		});
-	});
-
-	it('minBarLength settings should be used on Y axis on bar chart', function() {
-		var minBarLength = 4;
-		var chart = window.acquireChart({
-			type: 'bar',
-			data: {
-				datasets: [{
-					minBarLength: minBarLength,
-					data: [0.05, -0.05, 10, 15, 20, 25, 30, 35]
-				}]
-			}
-		});
-
-		var data = chart.getDatasetMeta(0).data;
-
-		expect(data[0].base - minBarLength).toEqual(data[0].y);
-		expect(data[1].base + minBarLength).toEqual(data[1].y);
-	});
-
-	it('minBarLength settings should be used on X axis on horizontal bar chart', function() {
-		var minBarLength = 4;
-		var chart = window.acquireChart({
-			type: 'bar',
-			data: {
-				datasets: [{
-					indexAxis: 'y',
-					minBarLength: minBarLength,
-					data: [0.05, -0.05, 10, 15, 20, 25, 30, 35]
-				}]
-			}
-		});
-
-		var data = chart.getDatasetMeta(0).data;
-
-		expect(data[0].base + minBarLength).toEqual(data[0].x);
-		expect(data[1].base - minBarLength).toEqual(data[1].x);
-	});
-
-	it('should respect the data visibility settings', function() {
-		var chart = window.acquireChart({
-			type: 'bar',
-			data: {
-				datasets: [{
-					data: [1, 2, 3, 4]
-				}],
-				labels: ['A', 'B', 'C', 'D']
-			},
-			options: {
-				legend: false,
-				title: false,
-				scales: {
-					x: {
-						type: 'category',
-						display: false
-					},
-					y: {
-						type: 'linear',
-						display: false,
-					}
-				}
-			}
-		});
-
-		var data = chart.getDatasetMeta(0).data;
-		expect(data[0].base).toBeCloseToPixel(512);
-		expect(data[0].y).toBeCloseToPixel(384);
-
-		chart.toggleDataVisibility(0);
-		chart.update();
-
-		data = chart.getDatasetMeta(0).data;
-		expect(data[0].base).toBeCloseToPixel(512);
-		expect(data[0].y).toBeCloseToPixel(512);
-	});
-
-	describe('Float bar', function() {
-		it('Should return correct values from getMinMax', function() {
-			var chart = window.acquireChart({
-				type: 'bar',
-				data: {
-					labels: ['a'],
-					datasets: [{
-						data: [[10, -10]]
-					}]
-				}
-			});
-
-			expect(chart.scales.y.getMinMax()).toEqual({min: -10, max: 10});
 		});
 	});
 });

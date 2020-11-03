@@ -3,7 +3,7 @@
 
 <head>
 	<title>Tooltip Border</title>
-	<script src="../../dist/chart.min.js"></script>
+	<script src="../../dist/Chart.bundle.js"></script>
 	<script src="../utils.js"></script>
 	<style>
 	canvas {
@@ -57,12 +57,8 @@
 						xPadding: 10,
 						caretSize: 8,
 						backgroundColor: 'rgba(72, 241, 12, 1)',
-						titleFont: {
-							color: window.chartColors.black
-						},
-						bodyFont: {
-							color: window.chartColors.black
-						},
+						titleFontColor: window.chartColors.black,
+						bodyFontColor: window.chartColors.black,
 						borderColor: 'rgba(0,0,0,1)',
 						borderWidth: 4
 					},

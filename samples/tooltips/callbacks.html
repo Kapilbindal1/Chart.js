@@ -3,7 +3,7 @@
 
 <head>
 	<title>Tooltip Hooks</title>
-	<script src="../../dist/chart.min.js"></script>
+	<script src="../../dist/Chart.bundle.js"></script>
 	<script src="../utils.js"></script>
 	<style>
 	canvas {
@@ -63,11 +63,11 @@
 					mode: 'index',
 					callbacks: {
 						// Use the footer callback to display the sum of the items showing in the tooltip
-						footer: function(tooltipItems) {
+						footer: function(tooltipItems, data) {
 							var sum = 0;
 
 							tooltipItems.forEach(function(tooltipItem) {
-								sum += tooltipItem.dataPoint.y;
+								sum += data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index];
 							});
 							return 'Sum: ' + sum;
 						},
@@ -79,20 +79,20 @@
 					intersect: true
 				},
 				scales: {
-					x: {
+					xAxes: [{
 						display: true,
 						scaleLabel: {
 							show: true,
 							labelString: 'Month'
 						}
-					},
-					y: {
+					}],
+					yAxes: [{
 						display: true,
 						scaleLabel: {
 							show: true,
 							labelString: 'Value'
 						}
-					}
+					}]
 				}
 			}
 		};

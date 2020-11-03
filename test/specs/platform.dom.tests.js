@@ -1,5 +1,3 @@
-const DomPlatform = Chart.platforms.DomPlatform;
-
 describe('Platform.dom', function() {
 
 	describe('context acquisition', function() {
@@ -13,14 +11,6 @@ describe('Platform.dom', function() {
 
 		afterEach(function() {
 			document.getElementById(canvasId).remove();
-		});
-
-		it('should use the DomPlatform by default', function() {
-			var chart = acquireChart({type: 'line'});
-
-			expect(chart.platform).toBeInstanceOf(Chart.platforms.DomPlatform);
-
-			chart.destroy();
 		});
 
 		// see https://github.com/chartjs/Chart.js/issues/2807
@@ -119,8 +109,8 @@ describe('Platform.dom', function() {
 		});
 
 		it('should use default "chart" aspect ratio for render and display sizes', function() {
-			var ratio = Chart.defaults.controllers.doughnut.aspectRatio;
-			Chart.defaults.controllers.doughnut.aspectRatio = 1;
+			var ratio = Chart.defaults.doughnut.aspectRatio;
+			Chart.defaults.doughnut.aspectRatio = 1;
 
 			var chart = acquireChart({
 				type: 'doughnut',
@@ -133,7 +123,7 @@ describe('Platform.dom', function() {
 				}
 			});
 
-			Chart.defaults.controllers.doughnut.aspectRatio = ratio;
+			Chart.defaults.doughnut.aspectRatio = ratio;
 
 			expect(chart).toBeChartOfSize({
 				dw: 425, dh: 425,
@@ -295,11 +285,7 @@ describe('Platform.dom', function() {
 
 	describe('controller.destroy', function() {
 		it('should reset context to default values', function() {
-			var wrapper = document.createElement('div');
-			var canvas = document.createElement('canvas');
-			wrapper.appendChild(canvas);
-			window.document.body.appendChild(wrapper);
-			var chart = new Chart(canvas, {});
+			var chart = acquireChart({});
 			var context = chart.ctx;
 
 			chart.destroy();
@@ -322,28 +308,27 @@ describe('Platform.dom', function() {
 			}, function(value, key) {
 				expect(context[key]).toBe(value);
 			});
-
-			wrapper.parentNode.removeChild(wrapper);
 		});
 
 		it('should restore canvas initial values', function(done) {
-			var wrapper = document.createElement('div');
-			var canvas = document.createElement('canvas');
-
-			canvas.setAttribute('width', 180);
-			canvas.setAttribute('style', 'width: 512px; height: 480px');
-			wrapper.setAttribute('style', 'width: 450px; height: 450px; position: relative');
-
-			wrapper.appendChild(canvas);
-			window.document.body.appendChild(wrapper);
-
-			var chart = new Chart(canvas.getContext('2d'), {
+			var chart = acquireChart({
 				options: {
 					responsive: true,
 					maintainAspectRatio: false
 				}
+			}, {
+				canvas: {
+					width: 180,
+					style: 'width: 512px; height: 480px'
+				},
+				wrapper: {
+					style: 'width: 450px; height: 450px; position: relative'
+				}
 			});
 
+			var canvas = chart.canvas;
+			var wrapper = canvas.parentNode;
+			wrapper.style.width = '475px';
 			waitForResize(chart, function() {
 				expect(chart).toBeChartOfSize({
 					dw: 475, dh: 450,
@@ -358,15 +343,13 @@ describe('Platform.dom', function() {
 				expect(canvas.style.height).toBe('480px');
 				expect(canvas.style.display).toBe('');
 
-				wrapper.parentNode.removeChild(wrapper);
 				done();
 			});
-			wrapper.style.width = '475px';
 		});
 	});
 
 	describe('event handling', function() {
-		it('should notify plugins about events', function(done) {
+		it('should notify plugins about events', function() {
 			var notifiedEvent;
 			var plugin = {
 				afterEvent: function(chart, e) {
@@ -387,44 +370,32 @@ describe('Platform.dom', function() {
 				plugins: [plugin]
 			});
 
-			afterEvent(chart, 'click', function() {
-				// Check that notifiedEvent is correct
-				expect(notifiedEvent).not.toBe(undefined);
+			var node = chart.canvas;
+			var rect = node.getBoundingClientRect();
+			var clientX = (rect.left + rect.right) / 2;
+			var clientY = (rect.top + rect.bottom) / 2;
 
-				// Is type correctly translated
-				expect(notifiedEvent.type).toBe('click');
-
-				// Relative Position
-				expect(notifiedEvent.x).toBeCloseToPixel(chart.width / 2);
-				expect(notifiedEvent.y).toBeCloseToPixel(chart.height / 2);
-
-				done();
+			var evt = new MouseEvent('click', {
+				view: window,
+				bubbles: true,
+				cancelable: true,
+				clientX: clientX,
+				clientY: clientY
 			});
 
-			jasmine.triggerMouseEvent(chart, 'click', {
-				x: chart.width / 2,
-				y: chart.height / 2
-			});
-		});
-	});
+			// Manually trigger rather than having an async test
+			node.dispatchEvent(evt);
 
-	describe('isAttached', function() {
-		it('should detect detached when canvas is attached to DOM', function() {
-			var platform = new DomPlatform();
-			var canvas = document.createElement('canvas');
-			var div = document.createElement('div');
+			// Check that notifiedEvent is correct
+			expect(notifiedEvent).not.toBe(undefined);
+			expect(notifiedEvent.native).toBe(evt);
 
-			expect(platform.isAttached(canvas)).toEqual(false);
-			div.appendChild(canvas);
-			expect(platform.isAttached(canvas)).toEqual(false);
-			document.body.appendChild(div);
+			// Is type correctly translated
+			expect(notifiedEvent.type).toBe(evt.type);
 
-			expect(platform.isAttached(canvas)).toEqual(true);
-
-			div.removeChild(canvas);
-			expect(platform.isAttached(canvas)).toEqual(false);
-			document.body.removeChild(div);
-			expect(platform.isAttached(canvas)).toEqual(false);
+			// Relative Position
+			expect(notifiedEvent.x).toBeCloseToPixel(chart.width / 2);
+			expect(notifiedEvent.y).toBeCloseToPixel(chart.height / 2);
 		});
 	});
 });

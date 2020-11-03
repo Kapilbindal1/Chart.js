@@ -11,7 +11,7 @@ window.chartColors = {
 };
 
 (function(global) {
-	var MONTHS = [
+	var Months = [
 		'January',
 		'February',
 		'March',
@@ -39,19 +39,7 @@ window.chartColors = {
 	];
 
 	var Samples = global.Samples || (global.Samples = {});
-	var Color = Chart.helpers.color;
-
-	function applyDefaultNumbers(config) {
-		var cfg = config || {};
-		cfg.min = cfg.min || 0;
-		cfg.max = cfg.max || 1;
-		cfg.from = cfg.from || [];
-		cfg.count = cfg.count || 8;
-		cfg.decimals = cfg.decimals || 8;
-		cfg.continuity = cfg.continuity || 1;
-
-		return cfg;
-	}
+	var Color = global.Color;
 
 	Samples.utils = {
 		// Adapted from http://indiegamr.com/generate-repeatable-random-numbers-in-js/
@@ -68,14 +56,20 @@ window.chartColors = {
 		},
 
 		numbers: function(config) {
-			var cfg = applyDefaultNumbers(config);
-			var dfactor = Math.pow(10, cfg.decimals) || 0;
+			var cfg = config || {};
+			var min = cfg.min || 0;
+			var max = cfg.max || 1;
+			var from = cfg.from || [];
+			var count = cfg.count || 8;
+			var decimals = cfg.decimals || 8;
+			var continuity = cfg.continuity || 1;
+			var dfactor = Math.pow(10, decimals) || 0;
 			var data = [];
 			var i, value;
 
-			for (i = 0; i < cfg.count; ++i) {
-				value = (cfg.from[i] || 0) + this.rand(cfg.min, cfg.max);
-				if (this.rand() <= cfg.continuity) {
+			for (i = 0; i < count; ++i) {
+				value = (from[i] || 0) + this.rand(min, max);
+				if (this.rand() <= continuity) {
 					data.push(Math.round(dfactor * value) / dfactor);
 				} else {
 					data.push(null);
@@ -112,7 +106,7 @@ window.chartColors = {
 			var i, value;
 
 			for (i = 0; i < count; ++i) {
-				value = MONTHS[Math.ceil(i) % 12];
+				value = Months[Math.ceil(i) % 12];
 				values.push(value.substring(0, section));
 			}
 

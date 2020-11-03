@@ -1,89 +1,89 @@
-import Element from '../core/core.element';
-import {drawPoint} from '../helpers/helpers.canvas';
+'use strict';
 
-export default class PointElement extends Element {
+var defaults = require('../core/core.defaults');
+var Element = require('../core/core.element');
+var helpers = require('../helpers/index');
 
-	constructor(cfg) {
-		super();
+var defaultColor = defaults.global.defaultColor;
 
-		this.options = undefined;
-		this.skip = undefined;
-		this.stop = undefined;
-
-		if (cfg) {
-			Object.assign(this, cfg);
+defaults._set('global', {
+	elements: {
+		point: {
+			radius: 3,
+			pointStyle: 'circle',
+			backgroundColor: defaultColor,
+			borderColor: defaultColor,
+			borderWidth: 1,
+			// Hover
+			hitRadius: 1,
+			hoverRadius: 4,
+			hoverBorderWidth: 1
 		}
 	}
+});
 
-	inRange(mouseX, mouseY, useFinalPosition) {
-		const options = this.options;
-		const {x, y} = this.getProps(['x', 'y'], useFinalPosition);
-		return ((Math.pow(mouseX - x, 2) + Math.pow(mouseY - y, 2)) < Math.pow(options.hitRadius + options.radius, 2));
-	}
+function xRange(mouseX) {
+	var vm = this._view;
+	return vm ? (Math.abs(mouseX - vm.x) < vm.radius + vm.hitRadius) : false;
+}
 
-	inXRange(mouseX, useFinalPosition) {
-		const options = this.options;
-		const {x} = this.getProps(['x'], useFinalPosition);
+function yRange(mouseY) {
+	var vm = this._view;
+	return vm ? (Math.abs(mouseY - vm.y) < vm.radius + vm.hitRadius) : false;
+}
 
-		return (Math.abs(mouseX - x) < options.radius + options.hitRadius);
-	}
+module.exports = Element.extend({
+	inRange: function(mouseX, mouseY) {
+		var vm = this._view;
+		return vm ? ((Math.pow(mouseX - vm.x, 2) + Math.pow(mouseY - vm.y, 2)) < Math.pow(vm.hitRadius + vm.radius, 2)) : false;
+	},
 
-	inYRange(mouseY, useFinalPosition) {
-		const options = this.options;
-		const {y} = this.getProps(['x'], useFinalPosition);
-		return (Math.abs(mouseY - y) < options.radius + options.hitRadius);
-	}
+	inLabelRange: xRange,
+	inXRange: xRange,
+	inYRange: yRange,
 
-	getCenterPoint(useFinalPosition) {
-		const {x, y} = this.getProps(['x', 'y'], useFinalPosition);
-		return {x, y};
-	}
+	getCenterPoint: function() {
+		var vm = this._view;
+		return {
+			x: vm.x,
+			y: vm.y
+		};
+	},
 
-	size() {
-		const options = this.options || {};
-		const radius = Math.max(options.radius, options.hoverRadius) || 0;
-		const borderWidth = radius && options.borderWidth || 0;
-		return (radius + borderWidth) * 2;
-	}
+	getArea: function() {
+		return Math.PI * Math.pow(this._view.radius, 2);
+	},
 
-	draw(ctx) {
-		const me = this;
-		const options = me.options;
+	tooltipPosition: function() {
+		var vm = this._view;
+		return {
+			x: vm.x,
+			y: vm.y,
+			padding: vm.radius + vm.borderWidth
+		};
+	},
 
-		if (me.skip || options.radius <= 0) {
+	draw: function(chartArea) {
+		var vm = this._view;
+		var model = this._model;
+		var ctx = this._chart.ctx;
+		var pointStyle = vm.pointStyle;
+		var rotation = vm.rotation;
+		var radius = vm.radius;
+		var x = vm.x;
+		var y = vm.y;
+		var errMargin = 1.01; // 1.01 is margin for Accumulated error. (Especially Edge, IE.)
+
+		if (vm.skip) {
 			return;
 		}
 
-		ctx.strokeStyle = options.borderColor;
-		ctx.lineWidth = options.borderWidth;
-		ctx.fillStyle = options.backgroundColor;
-		drawPoint(ctx, options, me.x, me.y);
+		// Clipping for Points.
+		if (chartArea === undefined || (model.x >= chartArea.left && chartArea.right * errMargin >= model.x && model.y >= chartArea.top && chartArea.bottom * errMargin >= model.y)) {
+			ctx.strokeStyle = vm.borderColor || defaultColor;
+			ctx.lineWidth = helpers.valueOrDefault(vm.borderWidth, defaults.global.elements.point.borderWidth);
+			ctx.fillStyle = vm.backgroundColor || defaultColor;
+			helpers.canvas.drawPoint(ctx, pointStyle, radius, x, y, rotation);
+		}
 	}
-
-	getRange() {
-		const options = this.options || {};
-		return options.radius + options.hitRadius;
-	}
-}
-
-PointElement.id = 'point';
-
-/**
- * @type {any}
- */
-PointElement.defaults = {
-	borderWidth: 1,
-	hitRadius: 1,
-	hoverBorderWidth: 1,
-	hoverRadius: 4,
-	pointStyle: 'circle',
-	radius: 3
-};
-
-/**
- * @type {any}
- */
-PointElement.defaultRoutes = {
-	backgroundColor: 'color',
-	borderColor: 'color'
-};
+});

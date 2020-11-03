@@ -1,28 +1,16 @@
-# Deployment
+/_book
 /coverage
 /custom
 /dist
+/docs/index.md
 /gh-pages
-
-# Node.js
-node_modules/
-npm-debug.log*
-
-# Docs
-.docusaurus
-.cache-loader
-build/
-
-# Development
+/jsdoc
+/node_modules
+/package-lock.json
 .DS_Store
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
 .idea
-.project
-.settings
 .vscode
+bower.json
 *.log
 *.swp
 *.stackdump
